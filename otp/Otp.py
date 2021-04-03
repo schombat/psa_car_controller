@@ -161,6 +161,7 @@ class Otp:
             proxies=self.proxies,
             verify=self.proxies is None
         ).text
+        logger.debug("request result XML: %s", raw_xml)
         try:
             raw_xml = raw_xml[raw_xml.index("?>") + 2:]
             if setup:
@@ -179,6 +180,7 @@ class Otp:
             param.update({"code": self.smsCode})
 
         xml = self.request(param, setup=True)
+        logger.debug("activation_start: XML %s", xml)
         if xml["err"] == "OK":
             if self.mode == Otp.ACTIVATE_MODE:
                 xml_filtred = {key: xml[key] for key in ["Kiw", "Kfact", "pinmode"]}
@@ -204,7 +206,9 @@ class Otp:
                            "Kma": kma_crypt, "pin": pin_crypt, "name": "Android SDK built for x86_64 / UNKNOWN", })
 
         params.update(R)
+        logger.debug("activation_finalyze: params %s", params)
         xml = self.request(params)
+        logger.debug("activation_finalyze: XML %s", xml)
         if xml["err"] != "OK":
             return Otp.NOK
         self.data.synchro(xml, self.generate_kma(self.codepin))

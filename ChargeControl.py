@@ -88,8 +88,9 @@ class ChargeControl:
                             thread.setDaemon(True)
                             thread.start()
             else:
-                if self._next_stop_hour < now:
-                    self._next_stop_hour += timedelta(days=1)
+                if self._next_stop_hour is not None:
+                    if self._next_stop_hour < now:
+                        self._next_stop_hour += timedelta(days=1)
                 self.retry_count = 0
         except AttributeError:
             logger.error("Probably can't retrieve all information from API: %s", traceback.format_exc())
@@ -103,12 +104,18 @@ class ChargeControl:
 
 
 class ChargeControls(dict):
+    charge_config_filename = "charge_config.json"
 
     def __init__(self):
         super().__init__()
         self._config_hash = None
 
-    def save_config(self, name="charge_config.json", force=False):
+    def save_config(self, name, force=False):
+        if name is None:
+            name = charge_config_filename
+        else:
+            charge_config_filename = name
+        logger.debug("ChargeControls.save_config called for file %s", name)
         chd = {}
         charge_control: ChargeControl
         for charge_control in self.values():
@@ -124,10 +131,12 @@ class ChargeControls(dict):
 
     @staticmethod
     def load_config(psacc: MyPSACC, name="charge_config.json"):
+        logger.debug("ChargeControls.load_config called for file %s", name)
         with open(name, "r") as f:
             config_str = f.read()
             chd = json.loads(config_str)
             charge_control_list = ChargeControls()
+            charge_control_list.charge_config_filename = name
             for vin, el in chd.items():
                 charge_control_list[vin] = ChargeControl(psacc, vin, **el)
             return charge_control_list

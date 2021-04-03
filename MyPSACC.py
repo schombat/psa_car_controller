@@ -28,6 +28,8 @@ from web.db import get_db, clean_position
 from geojson import Feature, Point, FeatureCollection
 from geojson import dumps as geo_dumps
 
+import pickle
+
 PSA_CORRELATION_DATE_FORMAT = "%Y%m%d%H%M%S%f"
 PSA_DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
@@ -232,6 +234,7 @@ class MyPSACC:
     def load_otp(self, force_new=False):
         otp_session = load_otp()
         if otp_session is None or force_new:
+        #if otp_session is None:
             self.get_sms_otp_code()
             otp_session = new_otp_session(otp_session)
         self.otp = otp_session
@@ -254,6 +257,7 @@ class MyPSACC:
         except ConfigException:
             self.load_otp(force_new=True)
             otp_code = self.otp.get_otp_code()
+        #otp_code = self.otp.get_otp_code()
         save_otp(self.otp)
         return otp_code
 
@@ -467,6 +471,7 @@ class MyPSACC:
         return True
 
     def save_config(self, name="config.json", force=False):
+        logger.debug("save config to file %s", name)
         config_str = json.dumps(self, cls=MyPeugeotEncoder, sort_keys=True, indent=4).encode("utf8")
         new_hash = md5(config_str).hexdigest()
         if force or self._config_hash != new_hash:
@@ -477,6 +482,7 @@ class MyPSACC:
 
     @staticmethod
     def load_config(name="config.json"):
+        logger.debug("load config from file %s", name)
         with open(name, "r") as f:
             config_str = f.read()
             config = dict(**json.loads(config_str))

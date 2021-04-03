@@ -49,9 +49,10 @@ if __name__ == "__main__":
     logger.info("server start")
     if args.config:
         web.app.myp = MyPSACC.load_config(name=args.config.name)
+        atexit.register(web.app.myp.save_config, name=args.config.name)
     else:
         web.app.myp = MyPSACC.load_config()
-    atexit.register(web.app.myp.save_config)
+        atexit.register(web.app.myp.save_config)
     if args.record:
         web.app.myp.set_record(True)
     if args.offline:
@@ -82,7 +83,10 @@ if __name__ == "__main__":
             t2.setDaemon(True)
             t2.start()
 
-    save_config(web.app.myp)
+    if args.config:
+        save_config(web.app.myp, name=args.config.name)
+    else:
+        save_config(web.app.myp)
     t1 = Thread(target=start_app, args=["My car info", args.base_path, logger.level < 20, args.listen, int(args.port)])
     t1.setDaemon(True)
     t1.start()

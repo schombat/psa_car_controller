@@ -6,7 +6,8 @@ from MyLogger import logger
 ENERGY_CAPACITY = {'SUV 3008': {'BATTERY_POWER': 10.8, 'FUEL_CAPACITY': 43},
                    'C5 Aircross': {'BATTERY_POWER': 10.8, 'FUEL_CAPACITY': 43},
                    'e-208': {'BATTERY_POWER': 46, 'FUEL_CAPACITY': 0},
-                   'e-2008': {'BATTERY_POWER': 46, 'FUEL_CAPACITY': 0}
+                   'e-2008': {'BATTERY_POWER': 46, 'FUEL_CAPACITY': 0},
+                   'Corsa-e': {'BATTERY_POWER': 46, 'FUEL_CAPACITY': 0}
                    }
 DEFAULT_BATTERY_POWER = 46
 DEFAULT_FUEL_CAPACITY = 0
@@ -37,7 +38,7 @@ class Car:
             self.battery_power = ENERGY_CAPACITY[self.label]["BATTERY_POWER"]
             self.fuel_capacity = ENERGY_CAPACITY[self.label]["FUEL_CAPACITY"]
         else:
-            logger.warning("Can't get car model please check %s", CARS_FILE)
+            logger.warning("Can't get car model for label %s, please check %s", self.label, CARS_FILE)
             self.battery_power = DEFAULT_BATTERY_POWER
             self.fuel_capacity = DEFAULT_FUEL_CAPACITY
         if self.is_electric():
