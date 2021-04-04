@@ -88,9 +88,8 @@ class ChargeControl:
                             thread.setDaemon(True)
                             thread.start()
             else:
-                if self._next_stop_hour is not None:
-                    if self._next_stop_hour < now:
-                        self._next_stop_hour += timedelta(days=1)
+                if self._next_stop_hour is not None and self._next_stop_hour < now:
+                    self._next_stop_hour += timedelta(days=1)
                 self.retry_count = 0
         except AttributeError:
             logger.error("Probably can't retrieve all information from API: %s", traceback.format_exc())
